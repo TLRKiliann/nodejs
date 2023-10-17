@@ -1,0 +1,316 @@
+Environnment
+------------
+
+1)
+javascript = single-thread - blocking - synchronous
+
+Async is possible = browser frontend + node backend
+
+node is environnment run time = execute code in backend and display
+informations in frontend.
+
+v8 is an environnment run time too.
+v8 = javascript engine
+
+javascript engine decode javascript
+
+only one thread in javascript (system de queue avec les events loop en JS)
+avant la prise en charge des tâches par la call stack - memory
+
+v8 est écrit en C++. On peut écrire des extensions d'application en plus. 
+
+nodejs github => src lib dep (à regarder)
+
+Babel compile le JSX pour le rendu graphic dans le navigateur avec v8.
+
+##########################################
+
+exports:
+--------
+
+const dataFunc = (a, b) => {
+	return a + b;
+}
+
+module.exports = dataFunc;
+
+---
+
+(other manner, only to call one module)
+
+module.exports.dataFunc = (a, b) => {
+	return a + b;
+}
+
+---
+
+module.exports = {
+	dataFunc,
+	otherFunction
+};
+
+---
+
+##########################################
+
+require:
+--------
+const fs = require("node:fs");
+const emitter = require("node:EmitterEvent");
+(emitter.emit() et emitter.on())
+const path = require("node:path");
+
+Appel des wrappers ou fichier avec un console.log()
+- require('file.js');
+
+Appel de fichier json ou objets
+- const date = require('index.js');
+
+example:
+--------
+
+const data = require('./file.js');
+
+const {name, email, age} = data;
+console.log(data.name);
+
+##########################################
+
+function wrapper
+
+(function (message) {
+	const hero = "Superman";
+	console.log(message, hero);
+})("Hello");
+
+(!!!ATTENTION!!! au ";" à la fin. Sinon ça ne marche pas).
+
+##########################################
+
+path:
+-----
+
+const path = require("node:path");
+
++ intro
+
+console.log(__filename); // file path
+console.log(__dirname); // dir path
+
++ basename()
+
+console.log(path.basename(__filename));
+console.log(path.basename(__dirname));
+
++ extname()
+
+console.log(path.extname(__filename));
+
++ join() 
+
+console.log(path.join('folder1','folder2','index.js'))
+console.log(path.resolve('folder1','folder2', __filename))
+
++ resolve()
+
+console.log(path.resolve('/folder1','/folder2','index.js'));
+
++ isAbsolute()
+
+console.log(path.isAbsolute(__filename)); // true
+console.log(path.isAbsolute('./index.js')); // false
+
+##########################################
+
+most util cmd:
+--------------
+
+$ node --watch filename.js
+$ node --trace-warnings index.js
+
+---
+
+(util)
+
+const util = require('node:util');
+
+const enabled = util.debuglog('foo').enabled;
+if (enabled) {
+  console.log('hello from foo [%d]', 123);
+} 
+
+##########################################
+
+2)
+callback function:
+------------------
+
+function callName(name){
+  console.log("Hello", name);
+}
+
+function getName(callfunc){
+  const name = "Vishwas";
+  callfunc(name);
+}
+
+const call = getName;
+getName(callName);
+console.log(call);
+
+##########################################
+
+"v".charCodeAt() = 86
+
+streams = sequence of data that is being moved from one point to another over time.
+(by chunks not entirely => example youtube) THAT'S SAVE MEMORY !
+event emitter class
+
+buffer = fait des chunk pour transférer des data d'un fichier à un autre (pas d'un coup en entier).
+gagner du temps et de la mémoire + pas de freeze !!!
+
+<Buffer 48 65 6c ...> => données en binaire !
+utf-8 => encodage (prépare les data au stockage dans la mémoire.)
+
+callback function est exécuté après la prochaine exécution.
+(example avec console.log() dans les fs.png !)
+
+##########################################
+
+fs = filesystem !
+-----------------
+
+(synchronous function)
+readFileSync()
+writeFileSync()
+
+sync = block 
+multiples users will deprecated the app (freeze!)
+
+async function with callback function ("", () => {})
+
+(asynchronous function)
+readFile()
+writeFile()
+
+---
+
+Async function with fs/promises: (memory allocation & execution time good !)
+--------------------------------
+
+// async function
+const fs = require("node:fs/promises");
+
+fs.readFile("file.txt", "utf-8");
+  .then((data) => console.log(data))
+  .catch((error) => console.log(error))
+
+ou
+
+// async function (+ await)
+const fs = require("node:fs/promises");
+
+async function readFile() {
+  try {
+    const data = await fs.readFile("file.txt", "utf-8");
+    console.log(data);
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+readfile();
+
+---
+
+streams: (chunk)
+--------
+
+fs.createReadStream()
+fs.createWriteStream()
+
+(save time & memory)
+
+Duplex stream => read & write => sockets !!!
+Tranform streams => transform the data as it's written & read (file compression)
+
+HTTP is a readableStream
+HTTP is a writeableStream
+
+---
+
+PIPE: (folder streams)
+-----
+
+Concept of chaining with the pipe method => complex => look at streams folder!
+
+##########################################
+
+HTTP:
+-----
+
+const http = require("node:http");
+
+http.createServer((req, res) => {
+  ...
+})
+
+Les request sont les requêtes envoyées par le navigateur (URI);
+
+req.url
+req.method
+
+---
+
+# cluster with node (multi-child process)
+-------------------
+
+***
+const cluster = require("node:cluster");
+
+if (cluster.isMaster) {
+    console.log(`Master process ${process.pid} is running`);
+    cluster.fork();
+    cluster.fork();
+} else {
+    console.log(`Worker process : ${process.pid} started`);
+    const server ...
+}
+***
+
+cluster module enables the creation of child processes (workers)
+
+single thread of node is blocked by the loop.
+
+cluster = cluster + workers are running (cluster_master2.png)
+2 requests in parallel (only slow-page is slow)
+
+to verify how many workers that can be use:
+***
+const OS = require("node:os");
+console.log(OS.cpus().length);
+***
+
+---
+
+$ npm install -g pm2
+
+$ pm2 start no-cluster.js -i 2
+
+$ pm2 stop no-cluster.js
+
+---
+
+# workers_threads (multi-threads)
+-----------------
+
+const {Worker} = require("node:worker_threads");
+
+const worker = new Worker('./otherFile.js');
+worker.on("message", (j) => {
+  res.writeHeader(200, {'Content-Type': 'text/plain'});
+  res.end(m̀y var : ${j}`);
+})
+
+
+

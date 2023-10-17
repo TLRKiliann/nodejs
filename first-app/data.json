@@ -1,0 +1,14 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "forname": "Doug",
+            "address": "Ch. des Bouquets 39"
+        },
+        {
+            "id": 2,
+            "forname": "Rebbeca",
+            "address": "Rue. des Accacias 22"
+        }
+    ]
+}

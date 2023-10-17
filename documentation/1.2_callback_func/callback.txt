@@ -1,0 +1,12 @@
+// callback function
+
+function returnName(name) {
+  console.log("Hello", name);
+}
+
+function callName(getFn){
+  const name = "Koala";
+  getFn(name);
+}
+
+callName(returnName);

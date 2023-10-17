@@ -1,0 +1,12 @@
+callback & promise
+
+1)
+
+2) callback in microtask queues are executed before callbacks in the i/o 
+queue.
+
+3) Dans cet ordre event_loop.png
+- nextTick dequeue 
+- promise callbacks 
+- callback (setTimout()) 
+- i/o queue
